@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* LIGHT MODE - Executive, Crisp, Jewel Tones */
+    --background: 255 255 255;
+    --foreground: 15 23 42;
+    /* Slate 900 */
+
+    --surface-card: 255 255 255;
+    --surface-hover: 241 245 249;
+    /* Slate 100 */
+    --surface-glass: 255 255 255;
+
+    /* Primary: Deep Sapphire Blue (Professional, Strong) */
+    --primary: 30 64 175;
+    /* Blue 800 */
+    --primary-foreground: 255 255 255;
+
+    /* Secondary: Rich Gold/Bronze (Not Yellow) */
+    --secondary: 180 83 9;
+    /* Amber 700 */
+    --secondary-foreground: 255 255 255;
+
+    /* Accent: Deep Teal */
+    --accent: 17 94 89;
+    /* Teal 800 */
+    --accent-foreground: 255 255 255;
+
+    --muted: 248 250 252;
+    --muted-foreground: 100 116 139;
+
+    --border: 226 232 240;
+    --input: 226 232 240;
+    --ring: 30 64 175;
+    --radius: 1rem;
+  }
+
+  .dark {
+    /* DARK MODE - Executive Midnight (Navy/Black mix) */
+    --background: 2 6 23;
+    /* Slate 950 */
+    --foreground: 248 250 252;
+
+    --surface-card: 15 23 42;
+    /* Slate 900 */
+    --surface-hover: 30 41 59;
+    --surface-glass: 10 15 30;
+
+    /* Primary: Electric Royal Blue (Pops against dark) */
+    --primary: 99 102 241;
+    /* Indigo 500 */
+    --primary-foreground: 255 255 255;
+
+    /* Secondary: Luminous Amber */
+    --secondary: 251 191 36;
+    /* Amber 400 */
+    --secondary-foreground: 15 23 42;
+
+    --muted: 30 41 59;
+    --muted-foreground: 148 163 184;
+
+    --border: 30 41 59;
+    --input: 30 41 59;
+    --ring: 99 102 241;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    @apply h-full w-full m-0 p-0 overflow-x-hidden;
+  }
+
+  body {
+    @apply bg-background text-foreground transition-colors duration-500 font-sans antialiased;
+  }
+}
+
+/* Vignette Utils */
+@layer utilities {
+  .bg-vignette-dark {
+    background: radial-gradient(circle at center, transparent 0%, rgba(2, 6, 23, 0.4) 60%, rgba(2, 6, 23, 0.9) 100%);
+  }
+
+  .bg-vignette-light {
+    background: radial-gradient(circle at center, transparent 0%, rgba(241, 245, 249, 0.3) 70%, rgba(226, 232, 240, 0.8) 100%);
+  }
+}
+
+/* Animations */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes aurora-pro {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes shimmery {
+  0% {
+    background-position: -100% 0;
+  }
+
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-aurora {
+  background-size: 200% 200%;
+  animation: aurora-pro 15s ease infinite alternate;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background-size: 200% 100%;
+  animation: shimmery 3s infinite linear;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: theme('colors.slate.700');
+  border-radius: 20px;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background-color: theme('colors.slate.300');
+}

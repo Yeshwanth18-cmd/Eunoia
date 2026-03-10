@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  
+  email     String   @unique
+  password  String   // Hashed
+  name      String
+
+  // Relationships
+  assessments Assessment[]
+  bookings    Booking[]
+  moodLogs    MoodLog[]
+  experientialLogs ExperientialLog[]
+  capacityLogs     CapacityLog[]
+  journalEntries   JournalEntry[]
+  posts            Post[]
+  savedPosts       SavedPost[]
+  savedResources   SavedResource[]
+}
+
+model Assessment {
+  id             String   @id @default(cuid())
+  createdAt      DateTime @default(now())
+
+  userId         String? // Link to registered User
+  user           User?   @relation(fields: [userId], references: [id])
+  
+  anonymousId    String? // Link to guest UUID
+  
+  assessmentType String   @default("PHQ9")
+  totalScore     Int
+  severity       String
+  rawAnswers     String
+}
+
+model Booking {
+  id          String       @id @default(cuid())
+  createdAt   DateTime     @default(now())
+
+  studentName  String
+  studentEmail String?
+  reason       String?
+
+  slot        DateTime
+  status      String @default("PENDING")
+
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  
+  anonymousId String? // Link to guest UUID
+}
+
+model MoodLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id])
+  
+  anonymousId String? // Link to guest UUID
+  
+  mood      Int
+  note      String?
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime // Explicit 7-day expiry
+  title       String?  // Optional title for the post
+  content     String
+  category    String   
+  anonymousId String?  // Made optional if we want strictly registered posts, or keep as fallback
+  
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  
+  isFlagged   Boolean  @default(false)
+  isLocked    Boolean  @default(false)
+
+  reactions   PostReaction[]
+  savedBy     SavedPost[]
+}
+
+model PostReaction {
+  id          String   @id @default(cuid())
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  anonymousId String?
+  userId      String?  // Track who reacted if registered
+  type        String   // "WARMTH", "INSIGHT", "SOLIDARITY"
+  createdAt   DateTime @default(now())
+  
+  @@unique([postId, anonymousId, type]) 
+  // Note: We might need a complex unique constraint or just app logic if we mix user/anon. 
+  // simpler to just track one or the other.
+}
+
+model SavedPost {
+  id          String   @id @default(cuid())
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  anonymousId String?
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  
+  savedAt     DateTime @default(now())
+
+  @@unique([postId, anonymousId])
+  @@unique([postId, userId]) // Prevent double saving by same user
+}
+
+model Resource {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  image       String?
+  link        String?
+  category    String   @default("Wellness")
+  isOfficial  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ExperientialLog {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  anonymousId String?
+
+  tags        String[]
+  note        String?
+}
+
+
+model CapacityLog {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  anonymousId String?
+
+  physical    Int
+  mental      Int
+  emotional   Int
+}
+
+model JournalEntry {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  anonymousId String?
+
+  title       String?  // User provided title or auto-generated
+  prompt      String?  // The question being answered
+  content     String   // The actual reflection
+  mood        String?  // Optional snapshot tag (e.g. "Peaceful")
+  tags        String[] // ["Gratitude", "Vent", "Idea"]
+}
+
+model SavedResource {
+  id          String   @id @default(cuid())
+  resourceId  String   // "academic", "anxiety", etc.
+  title       String?  // Store title for easier display without lookup
+  
+  anonymousId String?
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  
+  savedAt     DateTime @default(now())
+
+  @@unique([resourceId, anonymousId])
+  @@unique([resourceId, userId])
+}
